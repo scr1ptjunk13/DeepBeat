@@ -4,9 +4,12 @@ import { useState } from 'react'
 import { Upload } from 'lucide-react'
 import AudioWaveform from './AudioWaveform'
 import AudioPlayer from './AudioPlayer'
+import Link from 'next/link';
+
+
 
 export default function UploadComponent() {
-  const [file, setFile] = useState<File | null>(null)
+  const [file, setFile] = useState<File | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -72,11 +75,16 @@ export default function UploadComponent() {
             <AudioPlayer audioUrl={URL.createObjectURL(file)} />
           </div>
 
-          <button 
+          <Link
+            href={{
+              pathname: '/genre-result',
+              query: { file: URL.createObjectURL(file) },
+            }}
             className="w-full px-6 py-3 text-sm bg-white text-black rounded-full hover:bg-gray-200 transition-colors"
           >
             Analyze Genre
-          </button>
+          </Link>
+
         </div>
       )}
     </div>
