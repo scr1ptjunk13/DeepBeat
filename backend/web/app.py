@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify , render_template
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import tensorflow as tf
 import librosa
@@ -6,6 +6,7 @@ import numpy as np
 
 # Initialize Flask app
 app = Flask(__name__)
+
 
 # Enable CORS for the app
 CORS(app)
@@ -45,12 +46,11 @@ def extract_features(file_path):
 
     return combined_features
 
-
 @app.route('/')
 def home():
     return "Welcome to the Music Genre API!"
 
-@app.route('/genre-result', methods=['POST'])
+@app.route('/predict', methods=['POST'])  # Changed this to match the frontend
 def predict():
     if 'file' not in request.files or request.files['file'].filename == '':
         return jsonify({'error': 'No file uploaded. Please upload a valid .wav file.'}), 400

@@ -1,35 +1,54 @@
-// pages/genre-result.tsx
+'use client';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useSearchParams } from 'next/navigation';
 
 const GenreResultPage = () => {
   const [genre, setGenre] = useState('');
   const [confidence, setConfidence] = useState(0);
-  const router = useRouter();
+  const [error, setError] = useState('');
+  const searchParams = useSearchParams();
 
   useEffect(() => {
+    const fileData = searchParams.get('file');
+    
     const fetchGenreResult = async () => {
+      if (!fileData) {
+        setError('No file uploaded');
+        return;
+      }
+
       try {
         const response = await fetch('/api/analyze', {
           method: 'POST',
-          body: JSON.stringify({ file: router.query.file }),
+          body: JSON.stringify({ file: fileData }),
           headers: {
             'Content-Type': 'application/json',
           },
         });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch genre result');
+        }
 
         const data = await response.json();
         setGenre(data.genre);
         setConfidence(data.confidence);
       } catch (error) {
         console.error('Error fetching genre result:', error);
+        setError('Could not analyze the music file');
       }
     };
 
-    if (router.query.file) {
-      fetchGenreResult();
-    }
-  }, [router.query.file]);
+    fetchGenreResult();
+  }, [searchParams]);
+
+  if (error) {
+    return (
+      <div className="max-w-3xl mx-auto my-16 text-red-500">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto my-16">
@@ -37,7 +56,7 @@ const GenreResultPage = () => {
       {genre && (
         <div>
           <p className="text-2xl font-medium">Predicted Genre: {genre}</p>
-          <p className="text-xl text-gray-400 mt-2">Confidence: {confidence}%</p>
+          <p className="text-xl text-gray-400 mt-2">Confidence: {confidence.toFixed(2)}%</p>
         </div>
       )}
     </div>
